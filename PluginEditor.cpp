@@ -81,6 +81,7 @@ void YourPluginNameAudioProcessorEditor::resized()
     m_editor.setBounds(0, static_cast<int> (height*g_minPresetHandlerHeight/g_minGuiSize_y + 1), 
                         getWidth(), static_cast<int> (height - (height*g_minPresetHandlerHeight/g_minGuiSize_y + 1) ));
     #else
+
     m_editor.setBounds(0, 0, getWidth(), height);
 
     #endif                        
