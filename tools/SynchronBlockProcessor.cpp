@@ -37,7 +37,15 @@ void SynchronBlockProcessor::processBlock(juce::AudioBuffer<float>& data, juce::
     int nrofBlockProcessed = 0;
     if (m_directthrue == true)
     {
+        // Bugfix (found via pluginval while building StereoAnalyzer, Sept 2026):
+        // direct-through mode must return here. Falling through into the buffering
+        // code below writes into m_block/m_memory, which prepareSynchronProcessing()
+        // sizes to 0 samples for this mode (desiredSize < 1) -- an out-of-bounds heap
+        // write on every sample, and it also overwrites the caller's "data" buffer
+        // with garbage from the empty m_memory buffer, silently breaking the very
+        // pass-through this mode promises.
         processSynchronBlock(data, midiMessages, nrofBlockProcessed);
+        return;
     }
     // m_protectBlock.enter();
     auto readdatapointers = data.getArrayOfReadPointers();
