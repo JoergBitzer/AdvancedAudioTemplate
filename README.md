@@ -38,6 +38,23 @@ V1.2 (lessons from StereoWidener, 2026-09-30): the Save button turns red when th
 unmodified factory copies with a lower presetversion are updated, user-saved presets are never overwritten);
 new tools/LogFrequencyRange.h; jassert warning with JUCE 9 fixed.
 
+## Versioning of your plugin
+The version is set in CMakeLists.txt: `project(${TARGET_NAME} VERSION 0.0.1)`. It is shown in the GUI
+(Versioning.h, `PLUGIN_VERSION_MAJOR/MINOR/PATCH`) and in the plugin's metadata. For every change that you
+build and commit:
+* a new feature raises the second number and sets the third to zero (1.0.3 -> 1.1.0)
+* a fix or other change raises the third number (1.1.0 -> 1.1.1)
+* the first number is raised for a big step, e.g. the first public release (1.0.0) or a new version
+  that is not compatible with old presets
+
+## License of your plugin
+The template contains two license files:
+* `LICENSE`: the MIT License for your source code. Change the copyright line to your name.
+* `LICENSE-AGPL-3.0.txt`: JUCE is free to use under the AGPLv3 (or with a commercial JUCE licence).
+  If you give plugin binaries to others, the binaries as a whole are under the AGPLv3, so put both
+  files next to your plugin and publish your source code (e.g. on GitHub). The note at the end of
+  `LICENSE` explains this; keep it.
+
 ## Usage
 
 1. Create a new directory (better create a new repository in GitHub)
