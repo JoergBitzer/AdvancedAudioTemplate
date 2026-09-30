@@ -106,6 +106,16 @@ Furthermore all global graphic adjustments are defined here.
 
 After renaming the file you use these two files to implement the algorithm and the GUI. Always start with the definition of the parameters.
 
+### Parameters: define each one once (tools/ParameterSpec.h)
+Each parameter is defined once, as a struct in YourPluginName.h (see `g_paramExample`): ID, name, unit,
+range, default, number of decimal places, `logFrequency` (logarithmic range for frequencies) and a one-line
+`help` text. Everything else is made from it:
+* `paramVector.push_back(jade::makeParameter(g_paramExample));` in `addParameter()` creates the parameter.
+  Its value is shown as text with the unit ("1.2 xyz") in the DAW and on your slider.
+* `jade::helpText(g_paramExample)` gives "Example (1.0 - 2.0 xyz, default 1.2 xyz): <help>", e.g. as a
+  tooltip: `m_slider.setTooltip(jade::helpText(g_paramExample));` (the editor already has the
+  `juce::TooltipWindow` that shows tooltips).
+
 ### Factory presets
 Put your preset XML files (saved with the preset handler, then copied from the user preset
 folder) into the project, add them with `juce_add_binary_data` in CMakeLists.txt and enable
@@ -162,7 +172,8 @@ or use the tools given by visual studio code (Crtl + Shift + H (replace in files
 
 for the 5th step: rename 's/YourPluginName/GainPlugin/' *.* or by hand (just 2 files)
 
-for the 7th step switch off PresetHandlerGUI (for a simple gain not necessary) 
+for the 7th step switch off PresetHandlerGUI (for a simple gain not necessary) and WITH_DAYNIGHT
+(the day/night button needs the preset bar)
 
 3. Change the size in PluginSettings.h to something useful for a gain plugin 
 ```cpp
@@ -182,6 +193,9 @@ const struct
 	const float minValue = -80.f;
 	const float maxValue = 20.f;
 	const float defaultValue = 0.f;
+	const int numDecimalPlaces = 1;
+	const bool logFrequency = false;
+	const std::string help = "Output level: 0 dB = unchanged.";
 }g_paramGain;
 
 ```
@@ -197,11 +211,7 @@ private:
 
 6. change addParameter (delete the example code)
 ```cpp
-    paramVector.push_back(std::make_unique<juce::AudioParameterFloat>(g_paramGain.ID,            // parameterID
-                                                        g_paramGain.name,            // parameter name
-                                                        g_paramGain.minValue,              // minimum value
-                                                        g_paramGain.maxValue,              // maximum value
-                                                        g_paramGain.defaultValue));
+    paramVector.push_back(jade::makeParameter(g_paramGain)); // range, default and text from g_paramGain
 ```
 7. change prepareParameter (delete the ignore method)
 ```cpp
@@ -255,12 +265,11 @@ private:
 
 In the cpp file change the constructor
 ```cpp
-    m_GainSlider.setRange (g_paramGain.minValue, g_paramGain.maxValue);         
-    m_GainSlider.setTextValueSuffix (g_paramGain.unitName);    
     m_GainSlider.setSliderStyle(juce::Slider::LinearVertical);
-    m_GainSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxAbove, true, 60, 20);
-    m_GainSlider.setValue(g_paramGain.defaultValue);
+    m_GainSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxAbove, false, 60, 20);
+    // range, value and text ("-6.0 dB") come from the parameter via the attachment
 	m_GainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, g_paramGain.ID, m_GainSlider);
+    m_GainSlider.setTooltip(jade::helpText(g_paramGain));
 	addAndMakeVisible(m_GainSlider);
 ```
 and the setbounds method
