@@ -91,6 +91,63 @@ ren YourPluginName.* YourNewProjectName.*
                                                             Do you need a midi-keyboard display (default is no)) 
 8. Test if the template builds (should without error) and start coding your plugin
 
+## AAT2: self-contained repository and releases built by GitHub
+
+This branch (AAT2) adds two things to the template:
+* **Self-contained repository:** JUCE is included as a git submodule (`JUCE/`, pinned to a JUCE release).
+  `CMakeLists.txt` works on its own (`cmake -S . -B build`) and still works as a subdirectory of
+  AudioDev: if the parent project has already added JUCE, the submodule is ignored.
+* **Releases built by GitHub Actions** (`.github/workflows/release.yml`): pushing a tag `vX.Y.Z` builds
+  the plugin for Windows, macOS (Universal binary for Apple Silicon and Intel, VST3 + AU) and Linux and
+  creates a GitHub release with one zip per system. Each zip contains the plugins, the Standalone,
+  `release/ReadMeFirst.txt`, both license files and, if present, the manual (`docs/*.pdf`).
+
+### Start a new plugin with AAT2
+1. Create a new (empty) repository on GitHub and clone it.
+2. Copy the files of this branch into it (without `.git` and `JUCE`), e.g.:
+```console
+git clone -b AAT2 --depth 1 https://github.com/JoergBitzer/AdvancedAudioTemplate.git aat2
+rsync -a --exclude .git --exclude JUCE --exclude .gitmodules aat2/ YourNewRepository/
+```
+3. Add JUCE as a submodule (in your repository), pinned to a release:
+```console
+git submodule add https://github.com/juce-framework/JUCE.git JUCE
+git -C JUCE checkout 9.0.3
+```
+4. Rename "YourPluginName" in **all** files, also in the subfolders `.github` and `release`
+   (the command in "Usage" only covers the main folder), then rename the two files:
+```console
+grep -rl YourPluginName --exclude-dir=.git --exclude-dir=JUCE . | xargs sed -i 's/YourPluginName/YourNewProjectName/g'
+rename 's/YourPluginName/YourNewProjectName/' *.*
+```
+   Also set `PLUGIN_CODE` (unique for every plugin) and `COMPANY_NAME` in CMakeLists.txt, and
+   "YourName" / "YourGitHubName" in `release/ReadMeFirst.txt` and `LICENSE`.
+5. Build (Release):
+```console
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release --target YourNewProjectName_VST3 YourNewProjectName_Standalone
+```
+
+### Make a release
+1. Optional: put the manual as a PDF into `docs/`.
+2. Raise the version in CMakeLists.txt (see "Versioning of your plugin"), commit and push.
+3. Tag the commit with the same version and push the tag:
+```console
+git tag v1.2.3
+git push origin v1.2.3
+```
+4. After about 10 minutes the release with the three zips is on the "Releases" page of your repository.
+   The tag must match the version in CMakeLists.txt, otherwise no release is created (the zips are then
+   still attached to the workflow run on the "Actions" page).
+
+"Run workflow" on the Actions page builds all three systems without creating a release, e.g. to test a
+change. GitHub Actions are free for public repositories; private repositories have a limited number of
+free minutes per month (macOS minutes count ten times).
+
+Notes: the macOS binaries are only ad-hoc signed (no Apple Developer ID); users may have to remove the
+quarantine flag (`xattr -cr ...`, see `release/ReadMeFirst.txt`). The Linux binaries are built on
+Ubuntu 22.04, so they also run on older distributions.
+
 ## Important files to look for 
 
 ### PluginSettingsh

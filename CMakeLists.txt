@@ -4,9 +4,27 @@
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
 
+# AAT2: this file works in two ways
+#  - standalone (self-contained repository): cmake -S . -B build
+#    uses JUCE from the git submodule JUCE/ (see README, section AAT2)
+#  - as a subdirectory of a bigger project that already added JUCE (e.g. AudioDev)
+cmake_minimum_required(VERSION 3.22)
+
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR) # standalone
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON) # needed on Linux for binary data (e.g. factory presets)
+endif()
+
 set(TARGET_NAME YourPluginName)
 
 project(${TARGET_NAME} VERSION 0.0.1)
+
+if(NOT TARGET juce::juce_core) # JUCE not added by a parent project: use the submodule
+    if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/JUCE/CMakeLists.txt")
+        message(FATAL_ERROR "JUCE not found: run 'git submodule update --init' (see README, section AAT2)")
+    endif()
+    add_subdirectory(JUCE)
+endif()
 
 configure_file(Versioning.h.in Versioning.h)
 
