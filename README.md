@@ -126,8 +126,8 @@ With `add_compile_definitions(WITH_DAYNIGHT)` in CMakeLists.txt (default: on), t
 default) and a day (light) theme and a button at the right end of the preset bar to switch between them.
 It needs the preset handler (`WITH_PRESETHANDLERGUI`), because the button sits in the preset bar; CMake
 stops with a message if the preset handler is switched off. The choice is stored per user (not in the DAW
-project) in `user.settings` (Linux `~/.config/<Company>/<Plugin>/`, Windows `%APPDATA%\<Company>\<Plugin>\`,
-macOS `~/Library/Application Support/<Company>/<Plugin>/`) and applies to all instances of the plugin.
+project) in `user.settings` in the preset folder (`PresetHandler::getUserPresetsFolder()`, e.g. on Linux
+`~/.config/<Company>/<Plugin>/`) and applies to all instances of the plugin.
 The colours and the knob are defined in `tools/DayNightLookAndFeel.cpp`.
 
 ## GUI rules

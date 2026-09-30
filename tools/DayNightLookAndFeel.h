@@ -9,7 +9,7 @@
     - ThemeButton: the small button in the preset bar that switches the theme. It shows the icon of
       the theme a click switches to (a sun in night mode, a moon in day mode), drawn as a path, not
       as a text symbol (some Windows fonts lack the Unicode sun/moon).
-    - createUserSettings(): the per-user settings file where the choice is stored.
+    - createUserSettings(): the per-user settings file (in the preset folder) where the choice is stored.
 
     Your own components follow the theme if they take their colours from the LookAndFeel, e.g.
     g.setColour(getLookAndFeel().findColour(juce::Label::textColourId)) -- see YourPluginNameGUI::paint().
@@ -52,8 +52,9 @@ private:
     bool m_showSun = true; // night is the default, so the button offers the day theme
 };
 
-// Per-user settings file (juce::PropertiesFile, XML) "user.settings", shared by all instances:
-// Linux ~/.config/<Manufacturer>/<PluginName>/, Windows %APPDATA%\<Manufacturer>\<PluginName>\,
-// macOS ~/Library/Application Support/<Manufacturer>/<PluginName>/
-std::unique_ptr<juce::PropertiesFile> createUserSettings();
+// Per-user settings file "user.settings" (juce::PropertiesFile, XML) in the given folder, shared by
+// all instances. The editor uses the preset folder (PresetHandler::getUserPresetsFolder()), so
+// presets and settings are in the same place. Not ".xml": the preset handler loads every .xml
+// file in that folder as a preset.
+std::unique_ptr<juce::PropertiesFile> createUserSettings(const juce::File& folder);
 } // namespace jade

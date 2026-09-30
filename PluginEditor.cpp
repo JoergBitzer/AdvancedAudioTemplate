@@ -33,7 +33,8 @@ YourPluginNameAudioProcessorEditor::YourPluginNameAudioProcessorEditor (YourPlug
         parameter->addListener(this);
 
 #if WITH_DAYNIGHT
-    m_userSettings = jade::createUserSettings();
+    bool presetFolderWasCreated;
+    m_userSettings = jade::createUserSettings(m_processorRef.m_presets.getUserPresetsFolder(presetFolderWasCreated));
     const auto theme = m_userSettings->getBoolValue("dayTheme", false) ? jade::DayNightLookAndFeel::Theme::Day
                                                                         : jade::DayNightLookAndFeel::Theme::Night;
     m_lookAndFeel.setTheme(theme);

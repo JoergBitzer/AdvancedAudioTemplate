@@ -131,20 +131,11 @@ void ThemeButton::paintButton(juce::Graphics& g, bool shouldDrawButtonAsHighligh
     }
 }
 
-std::unique_ptr<juce::PropertiesFile> createUserSettings()
+std::unique_ptr<juce::PropertiesFile> createUserSettings(const juce::File& folder)
 {
-    // Explicit file in the standard per-user folder (JUCE's default on Linux would be a folder
-    // directly in the home directory). Not ".xml": on Linux and Windows this is also the preset
-    // folder, and the preset handler loads every .xml file there as a preset.
-    auto dir = juce::File::getSpecialLocation(juce::File::userApplicationDataDirectory);
-   #if JUCE_MAC
-    dir = dir.getChildFile("Application Support");
-   #endif
-    const auto file = dir.getChildFile(JucePlugin_Manufacturer).getChildFile(JucePlugin_Name).getChildFile("user.settings");
-
     juce::PropertiesFile::Options options;
     options.storageFormat = juce::PropertiesFile::storeAsXML;
     options.millisecondsBeforeSaving = 0; // save immediately when a value changes
-    return std::make_unique<juce::PropertiesFile>(file, options);
+    return std::make_unique<juce::PropertiesFile>(folder.getChildFile("user.settings"), options);
 }
 } // namespace jade
