@@ -33,7 +33,8 @@
 
 namespace jade
 {
-// help texts of all parameters made with makeParameter(), by parameter ID (e.g. for a manual)
+// help texts (the "help" line) of all parameters made with makeParameter(), by parameter ID
+// (e.g. to generate the list of controls for a manual)
 inline std::map<juce::String, juce::String>& parameterHelpTexts()
 {
     static std::map<juce::String, juce::String> texts;
@@ -61,7 +62,7 @@ std::unique_ptr<juce::AudioParameterFloat> makeParameter(const Spec& p)
         ? makeLogFrequencyRange(p.minValue, p.maxValue)
         : juce::NormalisableRange<float>(p.minValue, p.maxValue, std::pow(10.0f, (float) -p.numDecimalPlaces));
 
-    parameterHelpTexts()[juce::String(p.ID)] = helpText(p);
+    parameterHelpTexts()[juce::String(p.ID)] = juce::String(p.help);
 
     // the unit is part of the text (not a separate label, which some DAWs would show twice)
     return std::make_unique<juce::AudioParameterFloat>(
