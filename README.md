@@ -136,8 +136,8 @@ The colours and the knob are defined in `tools/DayNightLookAndFeel.cpp`.
   day/night theme and any other LookAndFeel.
 * No symbols outside Latin-1 in GUI text (no emoji, no ☀ ☾ ⚠ → etc.): some Windows fonts
   do not have them, and JUCE then shows a box or shortens the text to "...". Draw icons as a
-  `juce::Path` instead (example: `drawThemeIcon()` in StereoWidener's PluginLookAndFeel.cpp,
-  https://github.com/JoergBitzer/stereo_widening). The degree sign ° is fine.
+  `juce::Path` instead (example: `ThemeButton::paintButton()` in tools/DayNightLookAndFeel.cpp).
+  The degree sign ° is fine.
 * The Save button of the preset handler turns red after a user change. This works through
   parameter gestures, so connect your controls with the JUCE attachments
   (SliderAttachment, ButtonAttachment, ComboBoxAttachment) or `juce::ParameterAttachment`.
