@@ -26,6 +26,12 @@ configure_file(Versioning.h.in Versioning.h)
 # add_compile_definitions(FACTORY_PRESETS) # use this if you have finally some presets to add (see binary files below)
 # add_compile_definitions(WITH_MIDIKEYBOARD)
 add_compile_definitions(WITH_PRESETHANDLERGUI)
+add_compile_definitions(WITH_DAYNIGHT) # day/night theme button in the preset bar (needs WITH_PRESETHANDLERGUI)
+
+get_directory_property(ALL_DEFINITIONS COMPILE_DEFINITIONS)
+if("WITH_DAYNIGHT" IN_LIST ALL_DEFINITIONS AND NOT "WITH_PRESETHANDLERGUI" IN_LIST ALL_DEFINITIONS)
+    message(FATAL_ERROR "WITH_DAYNIGHT needs WITH_PRESETHANDLERGUI: the day/night button sits in the preset bar")
+endif()
 
 juce_add_plugin(${TARGET_NAME}
     # VERSION ...                               # Set this if the plugin version is different to the project version
@@ -66,6 +72,7 @@ target_sources(${TARGET_NAME}
         PluginEditor.cpp
         PluginProcessor.cpp
         YourPluginName.cpp
+        tools/DayNightLookAndFeel.cpp
         tools/MidiModPitchState.cpp
         tools/PresetHandler.cpp
         tools/SynchronBlockProcessor.cpp

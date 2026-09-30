@@ -31,10 +31,25 @@ YourPluginNameAudioProcessorEditor::YourPluginNameAudioProcessorEditor (YourPlug
 
     for (auto* parameter : m_processorRef.getParameters())
         parameter->addListener(this);
+
+#if WITH_DAYNIGHT
+    m_userSettings = jade::createUserSettings();
+    const auto theme = m_userSettings->getBoolValue("dayTheme", false) ? jade::DayNightLookAndFeel::Theme::Day
+                                                                        : jade::DayNightLookAndFeel::Theme::Night;
+    m_lookAndFeel.setTheme(theme);
+    m_themeButton.setCurrentTheme(theme);
+    m_themeButton.onClick = [this]() { toggleTheme(); };
+    addAndMakeVisible(m_themeButton);
+    // last, after all children are added: then all of them get the new colours
+    setLookAndFeel(&m_lookAndFeel);
+#endif
 }
 
 YourPluginNameAudioProcessorEditor::~YourPluginNameAudioProcessorEditor()
 {
+#if WITH_DAYNIGHT
+    setLookAndFeel(nullptr);
+#endif
     for (auto* parameter : m_processorRef.getParameters())
         parameter->removeListener(this);
 }
@@ -50,13 +65,26 @@ void YourPluginNameAudioProcessorEditor::parameterGestureChanged(int, bool gestu
     });
 }
 
+#if WITH_DAYNIGHT
+void YourPluginNameAudioProcessorEditor::toggleTheme()
+{
+    const bool day = m_lookAndFeel.getTheme() != jade::DayNightLookAndFeel::Theme::Day;
+    const auto theme = day ? jade::DayNightLookAndFeel::Theme::Day : jade::DayNightLookAndFeel::Theme::Night;
+    m_lookAndFeel.setTheme(theme);
+    m_themeButton.setCurrentTheme(theme);
+    m_userSettings->setValue("dayTheme", day);
+    sendLookAndFeelChange(); // all components take the new colours
+    repaint();
+}
+#endif
+
 //==============================================================================
 void YourPluginNameAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
 
-    g.setColour (juce::Colours::white);
+    g.setColour (getLookAndFeel().findColour (juce::Label::textColourId));
     g.setFont (15.0f);
     juce::String text2display = "Hello World! V " + juce::String(PLUGIN_VERSION_MAJOR) + "." + juce::String(PLUGIN_VERSION_MINOR) + "." + juce::String(PLUGIN_VERSION_PATCH);
     g.drawFittedText (text2display, getLocalBounds(), juce::Justification::centred, 1);
@@ -69,7 +97,14 @@ void YourPluginNameAudioProcessorEditor::resized()
     // m_jadeLAF.setFontSize(0.5*height*g_minPresetHandlerHeight/g_minGuiSize_y);
     // top presethandler
 #if WITH_PRESETHANDLERGUI    
-    m_presetGUI.setBounds(0, 0, getWidth(), height*g_minPresetHandlerHeight/g_minGuiSize_y);
+    const int presetHeight = height*g_minPresetHandlerHeight/g_minGuiSize_y;
+  #if WITH_DAYNIGHT
+    // day/night button at the right end of the preset bar
+    m_themeButton.setBounds(getWidth() - presetHeight, 2, presetHeight - 4, presetHeight - 4);
+    m_presetGUI.setBounds(0, 0, getWidth() - presetHeight, presetHeight);
+  #else
+    m_presetGUI.setBounds(0, 0, getWidth(), presetHeight);
+  #endif
 #endif
     // bottom a small midkeyboard
 #if WITH_MIDIKEYBOARD    
