@@ -173,6 +173,8 @@ range, default, number of decimal places, `logFrequency` (logarithmic range for 
 * `jade::helpText(g_paramExample)` gives "Example (1.0 - 2.0 xyz, default 1.2 xyz): <help>", e.g. as a
   tooltip: `m_slider.setTooltip(jade::helpText(g_paramExample));` (the editor already has the
   `juce::TooltipWindow` that shows tooltips).
+* AAT2: the Tester prints the list of all controls (range, default, help) as a Markdown or LaTeX table
+  for your manual (`--manual md|tex`, see HowToTestYourPlugin.md).
 
 ### Factory presets
 Put your preset XML files (saved with the preset handler, then copied from the user preset

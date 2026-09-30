@@ -77,6 +77,11 @@ for your plugin.
 
 **Parameters:** `YourPluginName_Tester --list` prints all parameter IDs with range and default.
 
+**List of controls for the manual:** `YourPluginName_Tester --manual md` (Markdown, e.g. for the
+README) or `--manual tex` (a LaTeX table) prints all controls with range and default, as the plugin
+shows them, and the `help` line of each parameter definition (see tools/ParameterSpec.h). So the
+list in your manual comes from the code and stays correct when you change a parameter.
+
 **Render** a wav file through the plugin (the result is a 32-bit float wav):
 ```console
 YourPluginName_Tester render in.wav out.wav --set ExampleID=1.5 --preset mypreset.xml

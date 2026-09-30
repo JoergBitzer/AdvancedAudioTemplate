@@ -18,6 +18,9 @@
       --seconds <s>         snapshot: how long to play/wait before the snapshot (default 1)
       --blocksize <n>       block size (default 512)
       --list                print all parameters (ID, name, range, default) and exit
+      --manual <md|tex>     print the list of controls as a Markdown or LaTeX table and exit
+                            (range and default as the plugin shows them, description = the
+                            parameter's "help" line, see tools/ParameterSpec.h)
 
     Note: like in a DAW, the plugin uses your preset folder and settings. On Linux/macOS, run
     it with a temporary home folder to keep them untouched: HOME=$(mktemp -d) Tester ...
@@ -28,6 +31,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include <iostream>
 #include <memory>
+#include "../ParameterSpec.h"
 
 // createPluginFilter() (declared by JUCE, defined in PluginProcessor.cpp) is the same function
 // a DAW calls to create the plugin, so this tool needs no plugin-specific names.
@@ -40,6 +44,7 @@ int usage()
                  "  Tester render <in.wav> <out.wav> [options]\n"
                  "  Tester snapshot <out.png> [options]\n"
                  "  Tester --list\n"
+                 "  Tester --manual <md|tex>\n"
                  "Options: --preset <file.xml>  --set <id>=<value>  --audio <in.wav>\n"
                  "         --seconds <s>  --blocksize <n>\n";
     return 2;
@@ -80,6 +85,45 @@ void listParameters(juce::AudioProcessor& processor)
                       << range.start << " .. " << range.end << "  default "
                       << range.convertFrom0to1(ranged->getDefaultValue()) << "\n";
         }
+}
+
+juce::String texEscape(const juce::String& t)
+{
+    juce::String out;
+    for (auto c : t)
+    {
+        if (c == '\\')                           out << "\\textbackslash{}";
+        else if (juce::String("&%$#_{}").containsChar(c)) out << "\\" << juce::String::charToString(c);
+        else                                     out << juce::String::charToString(c);
+    }
+    return out;
+}
+
+// the list of controls for a manual: Markdown or LaTeX table
+void printManual(juce::AudioProcessor& processor, const juce::String& format)
+{
+    const bool tex = format == "tex";
+    if (tex)
+        std::cout << "\\begin{tabular}{p{0.2\\textwidth}p{0.22\\textwidth}p{0.12\\textwidth}p{0.36\\textwidth}}\n"
+                     "\\hline\nControl & Range & Default & Description \\\\\n\\hline\n";
+    else
+        std::cout << "| Control | Range | Default | Description |\n|---|---|---|---|\n";
+    for (auto* p : processor.getParameters())
+        if (auto* ranged = dynamic_cast<juce::RangedAudioParameter*>(p))
+        {
+            const auto help = jade::parameterHelpTexts().count(ranged->getParameterID()) > 0
+                                  ? jade::parameterHelpTexts()[ranged->getParameterID()] : juce::String();
+            const juce::String cells[] = { ranged->getName(100),
+                                           ranged->getText(0.0f, 100) + " - " + ranged->getText(1.0f, 100),
+                                           ranged->getText(ranged->getDefaultValue(), 100), help };
+            if (tex)
+                std::cout << texEscape(cells[0]) << " & " << texEscape(cells[1]) << " & " << texEscape(cells[2])
+                          << " & " << texEscape(cells[3]) << " \\\\\n";
+            else
+                std::cout << "| " << cells[0] << " | " << cells[1] << " | " << cells[2] << " | " << cells[3] << " |\n";
+        }
+    if (tex)
+        std::cout << "\\hline\n\\end{tabular}\n";
 }
 
 // Plays "audio" (or silence, if empty) through the processor in blocks. Optionally pumps
@@ -149,6 +193,13 @@ int main(int argc, char* argv[])
     if (args.contains("--list"))
     {
         listParameters(*processor);
+        return 0;
+    }
+    if (const int i = args.indexOf("--manual"); i >= 0)
+    {
+        if (args[i + 1] != "md" && args[i + 1] != "tex")
+            return usage();
+        printManual(*processor, args[i + 1]);
         return 0;
     }
 
