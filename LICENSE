@@ -19,3 +19,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+--------------------------------------------------------------------------------
+This license covers the source code. Plugin binaries built from it contain
+third-party code under its own licenses: JUCE (used under the AGPLv3, or a
+commercial JUCE licence), the VST3 SDK by Steinberg (MIT License) and, on macOS,
+the Audio Unit SDK by Apple (Apache License 2.0). Binaries built with JUCE under
+the AGPLv3 are, as a whole, distributed under the GNU Affero General Public
+License v3 (full text: LICENSE-AGPL-3.0.txt).
