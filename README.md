@@ -33,6 +33,10 @@ This template provides some basic features for effects and synth, like:
 ## History / Versioning
 V1.0 basic usage is possible
 V1.1 added access to AudioProcessor in the Algo and GUI (necessary for AudioPlayHead and to have getter function for the GUI)
+V1.2 (lessons from StereoWidener, 2026-09-30): the Save button turns red when the user changes a parameter
+(the editor listens to parameter gestures); factory presets are deployed one by one (missing ones are copied,
+unmodified factory copies with a lower presetversion are updated, user-saved presets are never overwritten);
+new tools/LogFrequencyRange.h; jassert warning with JUCE 9 fixed.
 
 ## Usage
 
@@ -79,6 +83,30 @@ Furthermore all global graphic adjustments are defined here.
 ### YourPluginName.cpp and .h
 
 After renaming the file you use these two files to implement the algorithm and the GUI. Always start with the definition of the parameters.
+
+### Factory presets
+Put your preset XML files (saved with the preset handler, then copied from the user preset
+folder) into the project, add them with `juce_add_binary_data` in CMakeLists.txt and enable
+`add_compile_definitions(FACTORY_PRESETS)`. At every start, `DeployFactoryPresets()` copies
+each factory preset that is missing in the user folder. An existing file is only replaced if
+it is an unmodified factory copy (`bank="Factory"`) and the embedded preset has a higher
+`presetversion` attribute (add `presetversion="1"` to the root element of your XML files and
+raise it when you change a preset). Presets the user saved (`bank="User"`) are never touched.
+A factory preset the user deleted comes back at the next start.
+
+### tools/LogFrequencyRange.h
+`jade::makeLogFrequencyRange(minHz, maxHz)`: a logarithmic range for frequency parameters
+(cutoffs, crossovers). Use it instead of writing your own: a custom range must clamp in its
+snap function, or JUCE asserts (see the comment in the file).
+
+## GUI rules
+* No symbols outside Latin-1 in GUI text (no emoji, no ☀ ☾ ⚠ → etc.): some Windows fonts
+  do not have them, and JUCE then shows a box or shortens the text to "...". Draw icons as a
+  `juce::Path` instead (example: `drawThemeIcon()` in StereoWidener's PluginLookAndFeel.cpp,
+  https://github.com/JoergBitzer/stereo_widening). The degree sign ° is fine.
+* The Save button of the preset handler turns red after a user change. This works through
+  parameter gestures, so connect your controls with the JUCE attachments
+  (SliderAttachment, ButtonAttachment, ComboBoxAttachment) or `juce::ParameterAttachment`.
 
 ## Example to use the template
 

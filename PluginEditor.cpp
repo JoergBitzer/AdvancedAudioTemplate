@@ -29,10 +29,25 @@ YourPluginNameAudioProcessorEditor::YourPluginNameAudioProcessorEditor (YourPlug
     // from here your algo editor ---------
     addAndMakeVisible(m_editor);
 
+    for (auto* parameter : m_processorRef.getParameters())
+        parameter->addListener(this);
 }
 
 YourPluginNameAudioProcessorEditor::~YourPluginNameAudioProcessorEditor()
 {
+    for (auto* parameter : m_processorRef.getParameters())
+        parameter->removeListener(this);
+}
+
+void YourPluginNameAudioProcessorEditor::parameterGestureChanged(int, bool gestureIsStarting)
+{
+    if (!gestureIsStarting)
+        return;
+    juce::MessageManager::callAsync([safeThis = juce::Component::SafePointer<YourPluginNameAudioProcessorEditor>(this)]
+    {
+        if (safeThis != nullptr)
+            safeThis->m_presetGUI.setSomethingChanged();
+    });
 }
 
 //==============================================================================
