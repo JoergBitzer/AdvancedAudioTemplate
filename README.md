@@ -102,6 +102,8 @@ This branch (AAT2) adds two things to the template:
   the plugin for Windows, macOS (Universal binary for Apple Silicon and Intel, VST3 + AU) and Linux and
   creates a GitHub release with one zip per system. Each zip contains the plugins, the Standalone,
   `release/ReadMeFirst.txt`, both license files and, if present, the manual (`docs/manual/*.pdf`).
+* **CLAUDE.md:** instructions for Claude Code (build, workflow rules, conventions, tests, releases), so an
+  AI coding session in your plugin follows the same rules as the template. Adapt it to your own workflow.
 * **Documentation:** `docs/HowToDoc.md` (what goes into README, manual, development notes and release
   notes) and a LaTeX manual template in `docs/manual/`, whose list of controls and screenshot are
   generated with the Tester.

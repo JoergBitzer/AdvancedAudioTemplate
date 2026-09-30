@@ -1,0 +1,76 @@
+# CLAUDE.md -- instructions for Claude Code in a plugin made from the AdvancedAudioTemplate (AAT2)
+
+## The project
+A JUCE audio plugin (VST3, AU on macOS, Standalone) made from the AdvancedAudioTemplate, branch AAT2.
+- `YourPluginName.h/.cpp`: the parameters (structs), the algorithm (`YourPluginNameAudio`, fixed-size
+  blocks via `SynchronBlockProcessor`) and the GUI (`YourPluginNameGUI`). Most work happens here.
+- `PluginProcessor.*`, `PluginEditor.*`: glue code (presets, state, window, preset bar); change rarely.
+- `PluginSettings.h`: block size, GUI size, preset-bar and keyboard layout.
+- `tools/`: template helpers -- `ParameterSpec.h`, `DayNightLookAndFeel.*`, `PresetHandler.*`,
+  `LogFrequencyRange.h`, `run_pluginval.*`, `tester/`.
+- `CMakeLists.txt`: version, plugin codes, switches `WITH_PRESETHANDLERGUI`, `WITH_DAYNIGHT` (needs the
+  preset handler), `WITH_MIDIKEYBOARD`, source list.
+- Docs: `README.md`, `HowToTestYourPlugin.md`, `docs/HowToDoc.md`, manual in `docs/manual/`.
+
+## Build
+```console
+git submodule update --init                      # JUCE (pinned submodule), once
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DAAT_BUILD_TESTER=ON
+cmake --build build --target YourPluginName_VST3 YourPluginName_Standalone YourPluginName_Tester
+```
+Develop with the Debug build (JUCE assertions are on); releases are Release builds made by CI.
+Inside a bigger CMake project (e.g. AudioDev) this folder can also be added with `add_subdirectory`;
+then the parent's JUCE is used.
+
+## Workflow rules (from the author, follow them)
+- Each new request gets a new git branch with a descriptive name (e.g. `feature/lowpass-filter`,
+  `fix/preset-loading`). Commit all changes with clear, concise commit messages.
+- Merge into main and push only when the user says so. Before merging, check the result
+  (conflicts, conflict markers) before committing or continuing.
+- Release tags (`vX.Y.Z`) only on the user's explicit request -- a tag triggers a public release.
+- Versioning (`project(... VERSION X.Y.Z)` in CMakeLists.txt), once per logical change that gets
+  committed: a new feature raises the second number and sets the third to 0 (1.0.3 -> 1.1.0); a fix or
+  other change raises the third (1.1.0 -> 1.1.1). Documentation-only changes need no new version.
+- Update the documentation (README, manual, controls list) in the same change as the code.
+- Report results honestly: failed tests, skipped steps, things not tested (e.g. Windows/macOS).
+
+## Before every commit
+1. Build (Debug) without errors and warnings.
+2. `tools/run_pluginval.sh build/YourPluginName_artefacts/Debug/VST3/YourPluginName.vst3`
+   -- all runs SUCCESS, zero JUCE assertions.
+3. If the sound should not change (refactoring): render before and after with
+   `YourPluginName_Tester render in.wav out.wav` and compare the files (identical = same sound).
+4. After GUI changes: look at `YourPluginName_Tester snapshot gui.png` (both themes, see below).
+
+## Conventions
+- Parameters: one struct per parameter in `YourPluginName.h` (ID, name, unit, range, default,
+  `numDecimalPlaces`, `logFrequency`, `help`); create it with `jade::makeParameter(spec)`; show
+  `jade::helpText(spec)` as tooltip. Don't build `AudioParameterFloat`s by hand.
+- Controls: connect them with JUCE attachments (SliderAttachment etc.) or `juce::ParameterAttachment`;
+  then automation, undo and the red "changed" Save button work (they use parameter gestures).
+- Colours: take them from the LookAndFeel (`findColour`), so the day/night theme applies; fixed
+  colours as 8-digit hex `juce::Colour(0xAARRGGBB)` (alpha first), not floats or `juce::Colours::` names.
+- GUI text: only Latin-1 characters (no emoji, arrows, warning signs -- Windows fonts lack them); draw
+  icons as `juce::Path` (example: `ThemeButton` in `tools/DayNightLookAndFeel.cpp`).
+- Keep the algorithm free of GUI code (no `juce_gui_*` includes), so it can be tested headless.
+- Factory presets: XML files embedded with `juce_add_binary_data` and `FACTORY_PRESETS`; add
+  `presetversion="N"` to the root element and raise it when a preset changes (see README).
+- Per-user files (presets, `user.settings`) live in `PresetHandler::getUserPresetsFolder()`; nothing
+  there may end in `.xml` except presets.
+
+## Traps
+- `PluginEditor.*` and `PluginProcessor.*` use Windows line endings (CRLF): keep them when editing.
+- Never change anything in `JUCE/` (submodule).
+- Tests must not touch the user's real presets and settings: on Linux/macOS run the Standalone, the
+  Tester or pluginval with a temporary home folder (`HOME=$(mktemp -d) ...`; `run_pluginval.sh`
+  does this itself). Day theme for a snapshot: write `user.settings` with
+  `<VALUE name="dayTheme" val="1"/>` into the temporary preset folder.
+- The workflow only builds on tags and "Run workflow" (main branch). To test CI changes on a branch,
+  add a temporary `branches:` trigger and remove it again before merging.
+
+## Releases (CI)
+`.github/workflows/release.yml`: a tag `vX.Y.Z` that matches the version in CMakeLists.txt builds
+Windows, macOS (Universal, VST3 + AU) and Linux, tests with pluginval (and `auval` on macOS), and
+creates the GitHub release with one zip per system (plugins, Standalone, `release/ReadMeFirst.txt`,
+licenses, `docs/manual/*.pdf`). Before a release: version raised, manual updated
+(`\pluginversion`, `controls.tex` via `YourPluginName_Tester --manual tex`), PDF rebuilt and committed.
