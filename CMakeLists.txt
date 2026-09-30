@@ -147,3 +147,16 @@ target_link_libraries(${TARGET_NAME}
 target_include_directories(${TARGET_NAME} PUBLIC
         "${PROJECT_BINARY_DIR}"
         )        
+
+# AAT2: test tool (render a wav through the plugin, take a GUI snapshot), see
+# HowToTestYourPlugin.md. Off by default: cmake ... -DAAT_BUILD_TESTER=ON
+option(AAT_BUILD_TESTER "Build the test tool ${TARGET_NAME}_Tester" OFF)
+if(AAT_BUILD_TESTER)
+    add_executable(${TARGET_NAME}_Tester tools/tester/Tester.cpp)
+    # same settings as the plugin code (JucePlugin_* macros, JUCE options), and the plugin code itself;
+    # modal loops: the snapshot mode runs the message loop for a while (runDispatchLoopUntil)
+    target_compile_definitions(${TARGET_NAME}_Tester PRIVATE $<TARGET_PROPERTY:${TARGET_NAME},COMPILE_DEFINITIONS>
+        JUCE_MODAL_LOOPS_PERMITTED=1)
+    target_link_libraries(${TARGET_NAME}_Tester PRIVATE ${TARGET_NAME} juce::juce_audio_utils
+        PUBLIC juce::juce_recommended_config_flags juce::juce_recommended_warning_flags)
+endif()

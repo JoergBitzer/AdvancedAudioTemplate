@@ -48,3 +48,52 @@ Automatic tests do not replace your ears and hands. Load the plugin in your DAW 
 No DAW at hand? JUCE comes with a simple host: build `JUCE/extras/AudioPluginHost`, then
 "Options > Edit the list of available plug-ins" to scan your plugin. The Standalone version of your
 plugin (built with the VST3) is also a quick way to test the GUI and the sound.
+
+---
+
+# Advanced testing (AAT2)
+
+The following tools are part of the AAT2 branch only (see README, section AAT2).
+
+## 4. pluginval on GitHub
+
+The release workflow (`.github/workflows/release.yml`) runs `tools/run_pluginval.*` on Windows,
+macOS and Linux after every build (Linux under a virtual display, `xvfb`). If pluginval fails on
+one system, no release is created. "Run workflow" on the Actions page runs the same tests without
+releasing -- a quick way to test on systems you do not have.
+
+## 5. The Tester: render audio and take GUI snapshots
+
+`YourPluginName_Tester` is a small console program built from your plugin code. It is not built
+by default; switch it on when you configure:
+```console
+cmake -S . -B build -DAAT_BUILD_TESTER=ON
+cmake --build build --target YourPluginName_Tester
+```
+It creates the plugin the same way a DAW does (`createPluginFilter()`), so it needs no changes
+for your plugin.
+
+**Parameters:** `YourPluginName_Tester --list` prints all parameter IDs with range and default.
+
+**Render** a wav file through the plugin (the result is a 32-bit float wav):
+```console
+YourPluginName_Tester render in.wav out.wav --set ExampleID=1.5 --preset mypreset.xml
+```
+Uses: listen to a setting without a DAW; check that a code change did not change the sound
+(render before and after, then compare the files -- identical files mean identical sound); feed
+the result to an analysis (e.g. Python). Note that the output may be delayed by the plugin's
+latency (the template's internal block processing delays by 2 ms).
+
+**Snapshot** of the plugin window as a PNG:
+```console
+YourPluginName_Tester snapshot gui.png --preset mypreset.xml --audio in.wav --seconds 2
+```
+With `--audio`, the file is played through the plugin first, so meters and displays show a
+signal. Uses: screenshots for the README and the manual; a quick look at the GUI after a change
+(also on a machine without a DAW).
+
+Options for both: `--preset <file.xml>` (a preset saved by the preset handler), `--set <id>=<value>`
+(repeatable, value in the parameter's own unit), `--blocksize <n>` (default 512).
+
+Like in a DAW, the plugin uses your preset folder and settings. On Linux/macOS you can keep them
+untouched with a temporary home folder: `HOME=$(mktemp -d) YourPluginName_Tester ...`
