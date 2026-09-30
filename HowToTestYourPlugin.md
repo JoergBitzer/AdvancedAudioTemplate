@@ -58,8 +58,10 @@ The following tools are part of the AAT2 branch only (see README, section AAT2).
 ## 4. pluginval on GitHub
 
 The release workflow (`.github/workflows/release.yml`) runs `tools/run_pluginval.*` on Windows,
-macOS and Linux after every build (Linux under a virtual display, `xvfb`). If pluginval fails on
-one system, no release is created. "Run workflow" on the Actions page runs the same tests without
+macOS and Linux after every build (Linux under a virtual display, `xvfb`). On macOS the AU is also
+checked with `auval`, Apple's Audio Unit validation (the check Logic and GarageBand do before they
+load an AU); the AU codes are read from the built plugin, so nothing needs to be set. If a test
+fails on one system, no release is created. "Run workflow" on the Actions page runs the same tests without
 releasing -- a quick way to test on systems you do not have.
 
 ## 5. The Tester: render audio and take GUI snapshots
