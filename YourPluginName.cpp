@@ -32,17 +32,9 @@ int YourPluginNameAudio::processSynchronBlock(juce::AudioBuffer<float> & buffer,
 
 void YourPluginNameAudio::addParameter(std::vector<std::unique_ptr<juce::RangedAudioParameter>> &paramVector)
 {
-    // this is just a placeholder (necessary for compiling/testing the template)
-    paramVector.push_back(std::make_unique<AudioParameterFloat>(g_paramExample.ID,
-        g_paramExample.name,
-        NormalisableRange<float>(g_paramExample.minValue, g_paramExample.maxValue),
-        g_paramExample.defaultValue,
-        AudioParameterFloatAttributes().withLabel (g_paramExample.unitName)
-                                        .withCategory (juce::AudioProcessorParameter::genericParameter)
-                                        // or two additional lines with lambdas to convert data for display
-                                        // .withStringFromValueFunction (std::move ([](float value, int MaxLen) { value = int(exp(value) * 10) * 0.1f;  return (String(value, MaxLen) + " Hz"); }))
-                                        // .withValueFromStringFunction (std::move ([](const String& text) {return text.getFloatValue(); }))
-                        ));
+    // this is just a placeholder (necessary for compiling/testing the template):
+    // one line per parameter, made from its definition in YourPluginName.h (see tools/ParameterSpec.h)
+    paramVector.push_back(jade::makeParameter(g_paramExample));
 
 }
 
@@ -55,7 +47,12 @@ void YourPluginNameAudio::prepareParameter(std::unique_ptr<juce::AudioProcessorV
 YourPluginNameGUI::YourPluginNameGUI(YourPluginNameAudioProcessor& p, juce::AudioProcessorValueTreeState& apvts)
 :m_processor(p) ,m_apvts(apvts)
 {
-    
+    // A control for a parameter, e.g. a knob (members: juce::Slider m_exampleSlider; and
+    // std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> m_exampleAttachment;):
+    //   m_exampleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
+    //       m_apvts, g_paramExample.ID, m_exampleSlider);  // range, value and text come from the parameter
+    //   m_exampleSlider.setTooltip(jade::helpText(g_paramExample)); // shown when the mouse rests on it
+    //   addAndMakeVisible(m_exampleSlider);
 }
 
 void YourPluginNameGUI::paint(juce::Graphics &g)

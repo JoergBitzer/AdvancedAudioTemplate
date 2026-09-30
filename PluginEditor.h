@@ -55,6 +55,8 @@ private:
 #endif
     // plugin specific components
     YourPluginNameGUI m_editor;
+    // shows the tooltips (setTooltip) of all controls in this window; 700 ms before it appears
+    juce::TooltipWindow m_tooltipWindow { this, 700 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (YourPluginNameAudioProcessorEditor)
 };
