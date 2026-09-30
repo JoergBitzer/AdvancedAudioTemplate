@@ -91,6 +91,7 @@ ren YourPluginName.* YourNewProjectName.*
                                                             Do you need a midi-keyboard display (default is no)) 
 8. Test if the template builds (should without error) and start coding your plugin
 
+<<<<<<< HEAD
 ## AAT2: self-contained repository and releases built by GitHub
 
 This branch (AAT2) adds two things to the template:
@@ -147,6 +148,26 @@ free minutes per month (macOS minutes count ten times).
 Notes: the macOS binaries are only ad-hoc signed (no Apple Developer ID); users may have to remove the
 quarantine flag (`xattr -cr ...`, see `release/ReadMeFirst.txt`). The Linux binaries are built on
 Ubuntu 22.04, so they also run on older distributions.
+=======
+## Test your plugin with pluginval
+[pluginval](https://github.com/Tracktion/pluginval) loads your plugin like a DAW and tests it hard:
+parameters, automation, different sample rates and block sizes, opening and closing the editor, and
+more. Run it before every commit; it finds bugs that you would otherwise only notice in a DAW.
+
+Linux/macOS:
+```console
+tools/run_pluginval.sh path/to/YourPluginName.vst3
+```
+Windows (PowerShell):
+```console
+powershell -ExecutionPolicy Bypass -File tools\run_pluginval.ps1 path\to\YourPluginName.vst3
+```
+The script downloads pluginval on the first run, tests at the highest strictness level (10) three times
+(some bugs only show up now and then; give another number as second argument) and prints SUCCESS or
+FAILED per run, with the path to the log of a failed run. In AudioDev the plugin is in
+`build/YourPluginName/YourPluginName_artefacts/Debug/VST3/`. Test the Debug build: there, JUCE also
+checks its assertions (`jassert`), and the Linux/macOS script counts every assertion as a failure.
+>>>>>>> feature/pluginval-script
 
 ## Important files to look for 
 

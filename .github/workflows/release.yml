@@ -8,6 +8,7 @@ name: Build and release
 on:
   push:
     tags: ['v*.*.*']
+    branches: ['AAT2'] # TEMPORARY: test build, remove again
   workflow_dispatch:
 
 env:
