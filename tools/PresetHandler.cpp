@@ -378,7 +378,7 @@ void PresetComponent::paint(Graphics & g)
 	// colours from the LookAndFeel (follows a day/night theme); Save turns red after a change
 	g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId).contrasting(0.08f));
 	if (m_somethingchanged)
-		m_saveButton.setColour(TextButton::ColourIds::buttonColourId, juce::Colours::red);
+		m_saveButton.setColour(TextButton::ColourIds::buttonColourId, juce::Colour(0xffff0000)); // red
 	else
 		m_saveButton.removeColour(TextButton::ColourIds::buttonColourId);
 }

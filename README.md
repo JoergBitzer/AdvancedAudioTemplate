@@ -142,8 +142,12 @@ The colours and the knob are defined in `tools/DayNightLookAndFeel.cpp`.
 
 ## GUI rules
 * Take colours from the LookAndFeel, e.g. `g.setColour(getLookAndFeel().findColour(juce::Label::textColourId))`
-  (see `YourPluginNameGUI::paint()`), not fixed ones like `juce::Colours::white`. Then your GUI follows the
+  (see `YourPluginNameGUI::paint()`), not fixed ones like `juce::Colour(0xffffffff)`. Then your GUI follows the
   day/night theme and any other LookAndFeel.
+* Where you need a fixed colour (e.g. in your own LookAndFeel), write it as 8-digit hex,
+  `juce::Colour(0xffd01818)`, not as floats (`fromFloatRGBA`) or names (`juce::Colours::red`). Many editors
+  show a colour swatch and a colour picker for hex codes. Note JUCE's order: `0xAARRGGBB`, alpha first
+  (`ff` = opaque), then red, green, blue.
 * No symbols outside Latin-1 in GUI text (no emoji, no ☀ ☾ ⚠ → etc.): some Windows fonts
   do not have them, and JUCE then shows a box or shortens the text to "...". Draw icons as a
   `juce::Path` instead (example: `ThemeButton::paintButton()` in tools/DayNightLookAndFeel.cpp).
