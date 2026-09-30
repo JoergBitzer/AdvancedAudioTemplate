@@ -62,7 +62,9 @@ void YourPluginNameGUI::paint(juce::Graphics &g)
 {
     g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).brighter(0.3f));
 
-    g.setColour (juce::Colours::white);
+    // Take colours from the LookAndFeel (findColour), not fixed ones like juce::Colours::white:
+    // then your GUI follows the day/night theme (WITH_DAYNIGHT) and any other LookAndFeel.
+    g.setColour (getLookAndFeel().findColour (juce::Label::textColourId));
     g.setFont (12.0f);
     
     juce::String text2display = "YourPluginName V " + juce::String(PLUGIN_VERSION_MAJOR) + "." + juce::String(PLUGIN_VERSION_MINOR) + "." + juce::String(PLUGIN_VERSION_PATCH);

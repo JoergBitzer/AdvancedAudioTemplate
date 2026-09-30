@@ -4,6 +4,12 @@
 // #include "JadeLookAndFeel.h"
 #include "tools/PresetHandler.h"
 #include "tools/MidiModPitchState.h"
+#if WITH_DAYNIGHT
+    #if ! WITH_PRESETHANDLERGUI
+        #error "WITH_DAYNIGHT needs WITH_PRESETHANDLERGUI: the day/night button sits in the preset bar"
+    #endif
+    #include "tools/DayNightLookAndFeel.h"
+#endif
 
 
 #include "YourPluginName.h"
@@ -30,6 +36,14 @@ private:
     void parameterValueChanged(int, float) override {}
     void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
 
+#if WITH_DAYNIGHT
+    // Day/night theme (WITH_DAYNIGHT in CMakeLists.txt). Declared before all components, so the
+    // LookAndFeel is destroyed after them. The choice is stored per user (m_userSettings).
+    void toggleTheme();
+    std::unique_ptr<juce::PropertiesFile> m_userSettings;
+    jade::DayNightLookAndFeel m_lookAndFeel;
+    jade::ThemeButton m_themeButton;
+#endif
     // JadeLookAndFeel m_jadeLAF;
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.

@@ -88,7 +88,8 @@ ren YourPluginName.* YourNewProjectName.*
 
 6. Add your new subdiretory to the main CMakeLists.txt (in main directory YourDevDir (e.g. AudioDev)) file
 7. add or remove add_compile_definitions to your intention (Do you need a preset manager (default is yes), 
-                                                            Do you need a midi-keyboard display (default is no)) 
+                                                            Do you need a midi-keyboard display (default is no),
+                                                            Do you want a day/night theme button (default is yes)) 
 8. Test if the template builds (should without error) and start coding your plugin
 
 ## Test your plugin
@@ -120,11 +121,23 @@ A factory preset the user deleted comes back at the next start.
 (cutoffs, crossovers). Use it instead of writing your own: a custom range must clamp in its
 snap function, or JUCE asserts (see the comment in the file).
 
+## Day/night theme (WITH_DAYNIGHT)
+With `add_compile_definitions(WITH_DAYNIGHT)` in CMakeLists.txt (default: on), the GUI gets a night (dark,
+default) and a day (light) theme and a button at the right end of the preset bar to switch between them.
+It needs the preset handler (`WITH_PRESETHANDLERGUI`), because the button sits in the preset bar; CMake
+stops with a message if the preset handler is switched off. The choice is stored per user (not in the DAW
+project) in `user.settings` in the preset folder (`PresetHandler::getUserPresetsFolder()`, e.g. on Linux
+`~/.config/<Company>/<Plugin>/`) and applies to all instances of the plugin.
+The colours and the knob are defined in `tools/DayNightLookAndFeel.cpp`.
+
 ## GUI rules
+* Take colours from the LookAndFeel, e.g. `g.setColour(getLookAndFeel().findColour(juce::Label::textColourId))`
+  (see `YourPluginNameGUI::paint()`), not fixed ones like `juce::Colours::white`. Then your GUI follows the
+  day/night theme and any other LookAndFeel.
 * No symbols outside Latin-1 in GUI text (no emoji, no ☀ ☾ ⚠ → etc.): some Windows fonts
   do not have them, and JUCE then shows a box or shortens the text to "...". Draw icons as a
-  `juce::Path` instead (example: `drawThemeIcon()` in StereoWidener's PluginLookAndFeel.cpp,
-  https://github.com/JoergBitzer/stereo_widening). The degree sign ° is fine.
+  `juce::Path` instead (example: `ThemeButton::paintButton()` in tools/DayNightLookAndFeel.cpp).
+  The degree sign ° is fine.
 * The Save button of the preset handler turns red after a user change. This works through
   parameter gestures, so connect your controls with the JUCE attachments
   (SliderAttachment, ButtonAttachment, ComboBoxAttachment) or `juce::ParameterAttachment`.
