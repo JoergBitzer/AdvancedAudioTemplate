@@ -91,7 +91,6 @@ ren YourPluginName.* YourNewProjectName.*
                                                             Do you need a midi-keyboard display (default is no)) 
 8. Test if the template builds (should without error) and start coding your plugin
 
-<<<<<<< HEAD
 ## AAT2: self-contained repository and releases built by GitHub
 
 This branch (AAT2) adds two things to the template:
@@ -102,6 +101,8 @@ This branch (AAT2) adds two things to the template:
   the plugin for Windows, macOS (Universal binary for Apple Silicon and Intel, VST3 + AU) and Linux and
   creates a GitHub release with one zip per system. Each zip contains the plugins, the Standalone,
   `release/ReadMeFirst.txt`, both license files and, if present, the manual (`docs/*.pdf`).
+  Before packaging, every build is tested with pluginval (tools/run_pluginval.*, see "Test your plugin
+  with pluginval"); if the test fails, no release is created.
 
 ### Start a new plugin with AAT2
 1. Create a new (empty) repository on GitHub and clone it.
@@ -148,7 +149,6 @@ free minutes per month (macOS minutes count ten times).
 Notes: the macOS binaries are only ad-hoc signed (no Apple Developer ID); users may have to remove the
 quarantine flag (`xattr -cr ...`, see `release/ReadMeFirst.txt`). The Linux binaries are built on
 Ubuntu 22.04, so they also run on older distributions.
-=======
 ## Test your plugin with pluginval
 [pluginval](https://github.com/Tracktion/pluginval) loads your plugin like a DAW and tests it hard:
 parameters, automation, different sample rates and block sizes, opening and closing the editor, and
@@ -167,7 +167,6 @@ The script downloads pluginval on the first run, tests at the highest strictness
 FAILED per run, with the path to the log of a failed run. In AudioDev the plugin is in
 `build/YourPluginName/YourPluginName_artefacts/Debug/VST3/`. Test the Debug build: there, JUCE also
 checks its assertions (`jassert`), and the Linux/macOS script counts every assertion as a failure.
->>>>>>> feature/pluginval-script
 
 ## Important files to look for 
 
