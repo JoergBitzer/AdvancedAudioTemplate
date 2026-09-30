@@ -340,7 +340,6 @@ PresetComponent::PresetComponent(PresetHandler& ph)
 
 	m_categoriesCombo.setSelectedItemIndex(0, NotificationType::dontSendNotification);
 	m_categoriesCombo.onChange = [this]() {categorychanged(); };
-	m_categoriesCombo.setColour(ComboBox::ColourIds::backgroundColourId, juce::Colours::grey);
 	addAndMakeVisible(m_categoriesCombo);
 
 
@@ -364,7 +363,6 @@ PresetComponent::PresetComponent(PresetHandler& ph)
 	m_presetCombo.setSelectedItemIndex(startItem, NotificationType::dontSendNotification);
 	m_presetCombo.isTextEditable();
 	m_presetCombo.setEditableText(true);
-	m_presetCombo.setColour(ComboBox::ColourIds::backgroundColourId, juce::Colours::grey);
 
 	addAndMakeVisible(m_presetCombo);
 
@@ -377,14 +375,12 @@ void PresetComponent::paint(Graphics & g)
 	if (m_hidecategory)
 		m_categoriesCombo.setVisible(false);
 
-	g.fillAll(juce::Colours::grey);
+	// colours from the LookAndFeel (follows a day/night theme); Save turns red after a change
+	g.fillAll(getLookAndFeel().findColour(ResizableWindow::backgroundColourId).contrasting(0.08f));
 	if (m_somethingchanged)
 		m_saveButton.setColour(TextButton::ColourIds::buttonColourId, juce::Colours::red);
 	else
-	{
-		
-		m_saveButton.setColour(TextButton::ColourIds::buttonColourId, juce::Colours::grey);
-	}
+		m_saveButton.removeColour(TextButton::ColourIds::buttonColourId);
 }
 
 void PresetComponent::resized()
