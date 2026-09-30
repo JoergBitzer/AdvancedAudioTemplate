@@ -206,8 +206,21 @@ The colours and the knob are defined in `tools/DayNightLookAndFeel.cpp`.
 
 ## GUI rules
 * Take colours from the LookAndFeel, e.g. `g.setColour(getLookAndFeel().findColour(juce::Label::textColourId))`
-  (see `YourPluginNameGUI::paint()`), not fixed ones like `juce::Colours::white`. Then your GUI follows the
+  (see `YourPluginNameGUI::paint()`), not fixed ones like `juce::Colour(0xffffffff)`. Then your GUI follows the
   day/night theme and any other LookAndFeel.
+* Where you need a fixed colour (e.g. in your own LookAndFeel), write it as 8-digit hex,
+  `juce::Colour(0xffd01818)`, not as floats (`fromFloatRGBA`) or names (`juce::Colours::red`). Many editors
+  show a colour swatch and a colour picker for hex codes. Note JUCE's order: `0xAARRGGBB`, alpha first
+  (`ff` = opaque), then red, green, blue.
+* For Visual Studio Code, `tools/vscode-juce-color-picker` is a small extension that shows a swatch next to
+  every `0xAARRGGBB` literal in C/C++ files and opens a colour picker on click; the picked colour is written
+  back in JUCE's order. Install it by copying the folder into your VS Code extensions folder and restarting
+  VS Code:
+  ```console
+  cp -r tools/vscode-juce-color-picker ~/.vscode/extensions/juce-color-picker
+  ```
+  (Windows: `%USERPROFILE%\.vscode\extensions\juce-color-picker`). It treats every 8-digit hex number as
+  a colour, so other hex constants get a swatch, too.
 * No symbols outside Latin-1 in GUI text (no emoji, no ☀ ☾ ⚠ → etc.): some Windows fonts
   do not have them, and JUCE then shows a box or shortens the text to "...". Draw icons as a
   `juce::Path` instead (example: `ThemeButton::paintButton()` in tools/DayNightLookAndFeel.cpp).
