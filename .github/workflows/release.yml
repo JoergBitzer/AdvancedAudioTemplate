@@ -13,7 +13,7 @@ on:
 env:
   PRODUCT: YourPluginName
   ARTEFACTS: build/YourPluginName_artefacts/Release
-  # put into every zip next to the plugins (a manual as docs/*.pdf is added if it exists)
+  # put into every zip next to the plugins (the manual, docs/manual/*.pdf, is added if it exists)
   DOCS: release/ReadMeFirst.txt LICENSE LICENSE-AGPL-3.0.txt
 
 jobs:
@@ -100,7 +100,7 @@ jobs:
           cp -r "$ARTEFACTS/VST3/$PRODUCT.vst3" dist/$PRODUCT/
           cp "$ARTEFACTS/Standalone/$PRODUCT.exe" dist/$PRODUCT/
           cp $DOCS dist/$PRODUCT/
-          cp docs/*.pdf dist/$PRODUCT/ 2>/dev/null || true
+          cp docs/*.pdf docs/manual/*.pdf dist/$PRODUCT/ 2>/dev/null || true
           cd dist && 7z a ../$PRODUCT-Windows.zip $PRODUCT
 
       - name: Package macOS
@@ -111,7 +111,7 @@ jobs:
           # not signed with a Developer ID yet: ad-hoc signature, so the arm64 code is allowed to run at all
           for bundle in dist/$PRODUCT/*.vst3 dist/$PRODUCT/*.component dist/$PRODUCT/*.app; do codesign --force --deep --sign - "$bundle"; done
           cp $DOCS dist/$PRODUCT/
-          cp docs/*.pdf dist/$PRODUCT/ 2>/dev/null || true
+          cp docs/*.pdf docs/manual/*.pdf dist/$PRODUCT/ 2>/dev/null || true
           ditto -c -k --keepParent dist/$PRODUCT $PRODUCT-macOS.zip
 
       - name: Package Linux
@@ -120,7 +120,7 @@ jobs:
           mkdir -p dist/$PRODUCT
           cp -r "$ARTEFACTS/VST3/$PRODUCT.vst3" "$ARTEFACTS/Standalone/$PRODUCT" dist/$PRODUCT/
           cp $DOCS dist/$PRODUCT/
-          cp docs/*.pdf dist/$PRODUCT/ 2>/dev/null || true
+          cp docs/*.pdf docs/manual/*.pdf dist/$PRODUCT/ 2>/dev/null || true
           cd dist && zip -r ../$PRODUCT-Linux.zip $PRODUCT
 
       - uses: actions/upload-artifact@v4

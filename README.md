@@ -101,7 +101,10 @@ This branch (AAT2) adds two things to the template:
 * **Releases built by GitHub Actions** (`.github/workflows/release.yml`): pushing a tag `vX.Y.Z` builds
   the plugin for Windows, macOS (Universal binary for Apple Silicon and Intel, VST3 + AU) and Linux and
   creates a GitHub release with one zip per system. Each zip contains the plugins, the Standalone,
-  `release/ReadMeFirst.txt`, both license files and, if present, the manual (`docs/*.pdf`).
+  `release/ReadMeFirst.txt`, both license files and, if present, the manual (`docs/manual/*.pdf`).
+* **Documentation:** `docs/HowToDoc.md` (what goes into README, manual, development notes and release
+  notes) and a LaTeX manual template in `docs/manual/`, whose list of controls and screenshot are
+  generated with the Tester.
   Before packaging, every build is tested with pluginval (see HowToTestYourPlugin.md); if the test
   fails, no release is created.
 
@@ -117,14 +120,15 @@ rsync -a --exclude .git --exclude JUCE --exclude .gitmodules aat2/ YourNewReposi
 git submodule add https://github.com/juce-framework/JUCE.git JUCE
 git -C JUCE checkout 9.0.3
 ```
-4. Rename "YourPluginName" in **all** files, also in the subfolders `.github` and `release`
-   (the command in "Usage" only covers the main folder), then rename the two files:
+4. Rename "YourPluginName" in **all** files, also in the subfolders `.github`, `release` and `docs`
+   (the command in "Usage" only covers the main folder), then rename the three files:
 ```console
 grep -rl YourPluginName --exclude-dir=.git --exclude-dir=JUCE . | xargs sed -i 's/YourPluginName/YourNewProjectName/g'
-rename 's/YourPluginName/YourNewProjectName/' *.*
+rename 's/YourPluginName/YourNewProjectName/' *.* docs/manual/*.*
 ```
    Also set `PLUGIN_CODE` (unique for every plugin) and `COMPANY_NAME` in CMakeLists.txt, and
-   "YourName" / "YourGitHubName" in `release/ReadMeFirst.txt` and `LICENSE`.
+   "YourName" / "YourGitHubName" in `release/ReadMeFirst.txt`, `LICENSE` and the manual
+   (see `docs/HowToDoc.md`).
 5. Build (Release):
 ```console
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
