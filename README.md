@@ -91,24 +91,9 @@ ren YourPluginName.* YourNewProjectName.*
                                                             Do you need a midi-keyboard display (default is no)) 
 8. Test if the template builds (should without error) and start coding your plugin
 
-## Test your plugin with pluginval
-[pluginval](https://github.com/Tracktion/pluginval) loads your plugin like a DAW and tests it hard:
-parameters, automation, different sample rates and block sizes, opening and closing the editor, and
-more. Run it before every commit; it finds bugs that you would otherwise only notice in a DAW.
-
-Linux/macOS:
-```console
-tools/run_pluginval.sh path/to/YourPluginName.vst3
-```
-Windows (PowerShell):
-```console
-powershell -ExecutionPolicy Bypass -File tools\run_pluginval.ps1 path\to\YourPluginName.vst3
-```
-The script downloads pluginval on the first run, tests at the highest strictness level (10) three times
-(some bugs only show up now and then; give another number as second argument) and prints SUCCESS or
-FAILED per run, with the path to the log of a failed run. In AudioDev the plugin is in
-`build/YourPluginName/YourPluginName_artefacts/Debug/VST3/`. Test the Debug build: there, JUCE also
-checks its assertions (`jassert`), and the Linux/macOS script counts every assertion as a failure.
+## Test your plugin
+See [HowToTestYourPlugin.md](HowToTestYourPlugin.md): Debug build, the pluginval script
+(`tools/run_pluginval.sh` / `.ps1`) and testing in a DAW.
 
 ## Important files to look for 
 
