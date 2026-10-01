@@ -19,6 +19,11 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DAAT_BUILD_TESTER=ON
 cmake --build build --target YourPluginName_VST3 YourPluginName_Standalone YourPluginName_Tester
 ```
 Develop with the Debug build (JUCE assertions are on); releases are Release builds made by CI.
+For the review in a DAW, build Release as well (a Debug build is slow there and stops at assertions):
+```console
+cmake -S . -B build-release -DCMAKE_BUILD_TYPE=Release
+cmake --build build-release --target YourPluginName_VST3 YourPluginName_Standalone
+```
 Inside a bigger CMake project (e.g. AudioDev) this folder can also be added with `add_subdirectory`;
 then the parent's JUCE is used.
 
@@ -32,6 +37,12 @@ then the parent's JUCE is used.
   committed: a new feature raises the second number and sets the third to 0 (1.0.3 -> 1.1.0); a fix or
   other change raises the third (1.1.0 -> 1.1.1). Documentation-only changes need no new version.
 - Update the documentation (README, manual, controls list) in the same change as the code.
+- Install for review, automatically: after a successful build and pluginval run, copy the
+  **Release** build of the plugin into the user's plugin folder (replace the old copy) so the change
+  can be checked in a DAW, and say so in the report. Linux: `~/.vst3/`; macOS:
+  `~/Library/Audio/Plug-Ins/VST3/` and the AU to `~/Library/Audio/Plug-Ins/Components/`; Windows:
+  `C:\Program Files\Common Files\VST3\` (needs admin rights; otherwise tell the user the path of
+  the built plugin). Install the build that was tested (run pluginval on the Release build too).
 - Report results honestly: failed tests, skipped steps, things not tested (e.g. Windows/macOS).
 
 ## Before every commit
