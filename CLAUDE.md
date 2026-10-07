@@ -54,6 +54,14 @@ then the parent's JUCE is used.
 4. After GUI changes: look at `YourPluginName_Tester snapshot gui.png` (both themes, see below).
 
 ## Conventions
+- Readable code (code style of the author, binding): no one-liners, no magic numbers, no magic
+  constants, no magic strings. Readability is more important than performance (but not too much).
+- No ternary operators; no `if`/`else` inside expressions; no `goto`; no `using namespace` in headers.
+- Constants with `constexpr`, not `#define`; no `#define` macros (inline functions or templates);
+  JUCE's own macros are the exception.
+- Headers include as little as possible: forward declare, include only what is used, no includes in
+  headers just to pass them on.
+- Member variables `m_...`, constants `kName`.
 - Parameters: one struct per parameter in `YourPluginName.h` (ID, name, unit, range, default,
   `numDecimalPlaces`, `logFrequency`, `help`); create it with `jade::makeParameter(spec)`; show
   `jade::helpText(spec)` as tooltip. Don't build `AudioParameterFloat`s by hand.
