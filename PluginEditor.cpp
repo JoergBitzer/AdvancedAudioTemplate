@@ -22,6 +22,7 @@ YourPluginNameAudioProcessorEditor::YourPluginNameAudioProcessorEditor (YourPlug
 
 	addAndMakeVisible(m_presetGUI);
 #if WITH_MIDIKEYBOARD      
+	m_keyboard.setOctaveForMiddleC(g_octaveOfMiddleC); // note 60 is shown as C4 (JUCE's default would label it C3)
 	addAndMakeVisible(m_keyboard);
     addAndMakeVisible(m_wheels);    
 #endif
