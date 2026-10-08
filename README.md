@@ -37,6 +37,7 @@ V1.2 (lessons from StereoWidener, 2026-09-30): the Save button turns red when th
 (the editor listens to parameter gestures); factory presets are deployed one by one (missing ones are copied,
 unmodified factory copies with a lower presetversion are updated, user-saved presets are never overwritten);
 new tools/LogFrequencyRange.h; jassert warning with JUCE 9 fixed.
+V1.3 (2026-10-08): the keyboard (WITH_MIDIKEYBOARD) labels MIDI note 60 as C4 (JUCE's default is C3); `g_octaveOfMiddleC` in PluginSettings.h.
 
 ## Versioning of your plugin
 The version is set in CMakeLists.txt: `project(${TARGET_NAME} VERSION 0.0.1)`. It is shown in the GUI
