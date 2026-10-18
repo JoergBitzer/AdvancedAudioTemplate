@@ -49,7 +49,8 @@ then the parent's JUCE is used.
 The author works on the same machine. Everything that opens a window runs in a **virtual display**, never on the real desktop:
 - pluginval: `tools/run_pluginval.sh ...` -- on Linux it starts itself under `xvfb-run -a` if xvfb is installed
   (`AAT_REAL_DISPLAY=1` switches that off, only for a machine nobody works at);
-- Tester snapshots, the Standalone and any other GUI program: `xvfb-run -a build/YourPluginName_Tester snapshot gui.png ...`;
+- Tester snapshots, the Standalone and any other GUI program: `tools/with_virtual_display.sh build/YourPluginName_Tester snapshot gui.png ...`
+  (it starts openbox inside the virtual display: JUCE's top-level windows end with an X error "BadAtom" on a bare Xvfb);
 - never move the mouse, click, type into other windows or take screenshots of the desktop (xdotool, XTest, `import -window root`,
   computer-use, browser automation) without asking first and getting a yes for that specific action. Tests that need mouse or key
   events run inside the virtual display together with the program under test (start both under one `xvfb-run -a`), or hand the

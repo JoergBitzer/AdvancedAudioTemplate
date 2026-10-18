@@ -102,7 +102,8 @@ YourPluginName_Tester snapshot gui.png --preset mypreset.xml --audio in.wav --se
 With `--audio`, the file is played through the plugin first, so meters and displays show a
 signal. Uses: screenshots for the README and the manual; a quick look at the GUI after a change
 (also on a machine without a DAW). On Linux run it in a virtual display, so that nothing appears on your desktop:
-`xvfb-run -a YourPluginName_Tester snapshot gui.png ...`.
+`tools/with_virtual_display.sh YourPluginName_Tester snapshot gui.png ...` (Xvfb with the small window manager openbox; the Tester's
+window needs a window manager, otherwise JUCE ends with an X error "BadAtom").
 
 Options for both: `--preset <file.xml>` (a preset saved by the preset handler), `--set <id>=<value>`
 (repeatable, value in the parameter's own unit), `--blocksize <n>` (default 512).
