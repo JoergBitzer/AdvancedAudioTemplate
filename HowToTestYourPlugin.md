@@ -64,6 +64,10 @@ load an AU); the AU codes are read from the built plugin, so nothing needs to be
 fails on one system, no release is created. "Run workflow" on the Actions page runs the same tests without
 releasing -- a quick way to test on systems you do not have.
 
+**On your own Linux machine** `tools/run_pluginval.sh` also runs itself under `xvfb-run -a` if xvfb is installed
+(`sudo apt install xvfb`), so the plugin windows of the GUI tests do not appear on your desktop and your work is not disturbed;
+`AAT_REAL_DISPLAY=1` switches that off.
+
 ## 5. The Tester: render audio and take GUI snapshots
 
 `YourPluginName_Tester` is a small console program built from your plugin code. It is not built
@@ -97,7 +101,8 @@ YourPluginName_Tester snapshot gui.png --preset mypreset.xml --audio in.wav --se
 ```
 With `--audio`, the file is played through the plugin first, so meters and displays show a
 signal. Uses: screenshots for the README and the manual; a quick look at the GUI after a change
-(also on a machine without a DAW).
+(also on a machine without a DAW). On Linux run it in a virtual display, so that nothing appears on your desktop:
+`xvfb-run -a YourPluginName_Tester snapshot gui.png ...`.
 
 Options for both: `--preset <file.xml>` (a preset saved by the preset handler), `--set <id>=<value>`
 (repeatable, value in the parameter's own unit), `--blocksize <n>` (default 512).
