@@ -78,6 +78,9 @@ The author works on the same machine. Everything that opens a window runs in a *
 - Parameters: one struct per parameter in `YourPluginName.h` (ID, name, unit, range, default,
   `numDecimalPlaces`, `logFrequency`, `help`); create it with `jade::makeParameter(spec)`; show
   `jade::helpText(spec)` as tooltip. Don't build `AudioParameterFloat`s by hand.
+- On/off parameters: not `juce::AudioParameterBool` (it keeps the raw value a host sends, so pluginval 2.x fails
+  "Discrete parameter state restoration" at strictness 8 and above); use `jade::makeSwitchParameter(id, name, defaultIsOn)`
+  from `tools/SwitchParameter.h` (a choice Off/On, snaps to a step; `ButtonAttachment` works unchanged).
 - Controls: connect them with JUCE attachments (SliderAttachment etc.) or `juce::ParameterAttachment`;
   then automation, undo and the red "changed" Save button work (they use parameter gestures).
 - Colours: take them from the LookAndFeel (`findColour`), so the day/night theme applies; fixed
