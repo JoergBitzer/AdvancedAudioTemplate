@@ -35,6 +35,18 @@ JUCE assertion as a failure, and it uses a temporary home folder, so your real p
 If a run fails, open the log and search for "FAILED" or "JUCE Assertion": the lines before it show
 which test was running. Fix the problem and test again, until all runs pass.
 
+Known cases:
+- **"has a different value after restoring the same state"** (test "Discrete parameter state restoration", strictness 8 and
+  above, pluginval 2.x): `juce::AudioParameterBool` keeps the raw normalised value a host sends (e.g. 0.23) but saves only
+  a bool, so the reported value depends on how it got there. This is a property of the JUCE class, not a bug in your code
+  (`AudioParameterChoice` and `AudioParameterInt` snap to a step, only the Bool does not). Use
+  `jade::makeSwitchParameter(id, name, defaultIsOn)` from `tools/SwitchParameter.h` for on/off parameters: a choice with
+  the entries Off and On; `ButtonAttachment` works unchanged, and you read it with `getRawParameterValue(id)->load() >= 0.5f`.
+- **"Programlist 000->Program 000: has no name"** (the Steinberg VST3 validator built into pluginval 2.x): `getProgramName`
+  must return a non-empty name (the template returns "Default").
+- pluginval 1.0.4 crashed now and then (SIGSEGV in its own run loop) with many parameters; the scripts therefore download
+  a pinned pluginval 2.x (`pluginvalTag` in the script).
+
 ## 3. Test in a DAW (and in JUCE's AudioPluginHost)
 
 Automatic tests do not replace your ears and hands. Load the plugin in your DAW and:
