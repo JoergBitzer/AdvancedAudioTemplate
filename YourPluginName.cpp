@@ -19,7 +19,7 @@ void YourPluginNameAudio::prepareToPlay(double sampleRate, int max_samplesPerBlo
         synchronblocksize = int(pow(2,nextpowerof2));
     }
     prepareSynchronProcessing(max_channels,synchronblocksize);
-    m_Latency += synchronblocksize;
+    m_Latency = synchronblocksize; // '=', not '+=': prepareToPlay can be called several times
     // here your code
 
 }

@@ -3,6 +3,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "tools/MidiModPitchState.h"
 #include "tools/PresetHandler.h"
+#include "tools/BypassDelay.h"
 #include "YourPluginName.h"
 
 //==============================================================================
@@ -22,6 +23,10 @@ public:
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
     using AudioProcessor::processBlock;
+    // the plugin reports a latency (synchronous blocks): bypassed, an effect passes its input through
+    // delayed by the same amount, a synth is silent (JUCE's default would assert)
+    void processBlockBypassed (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    using AudioProcessor::processBlockBypassed;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -64,6 +69,7 @@ private:
     MidiKeyboardState m_keyboardState;
     MidiModPitchBendState m_wheelState;
 #endif
+    jade::BypassDelay m_bypassDelay;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (YourPluginNameAudioProcessor)

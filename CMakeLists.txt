@@ -6,7 +6,7 @@
 
 set(TARGET_NAME YourPluginName)
 
-project(${TARGET_NAME} VERSION 0.0.3)
+project(${TARGET_NAME} VERSION 0.0.4)
 
 configure_file(Versioning.h.in Versioning.h)
 
