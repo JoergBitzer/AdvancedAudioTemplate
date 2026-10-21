@@ -17,6 +17,8 @@
       --audio <in.wav>      snapshot: play this file through the plugin first (meters etc.)
       --seconds <s>         snapshot: how long to play/wait before the snapshot (default 1)
       --blocksize <n>       block size (default 512)
+      --bypass              render: call processBlockBypassed instead of processBlock (the bypassed
+                            signal must have the same delay as the processed one, see "reported latency")
       --list                print all parameters (ID, name, range, default) and exit
       --manual <md|tex>     print the list of controls as a Markdown or LaTeX table and exit
                             (range and default as the plugin shows them, description = the
@@ -46,7 +48,7 @@ int usage()
                  "  Tester --list\n"
                  "  Tester --manual <md|tex>\n"
                  "Options: --preset <file.xml>  --set <id>=<value>  --audio <in.wav>\n"
-                 "         --seconds <s>  --blocksize <n>\n";
+                 "         --seconds <s>  --blocksize <n>  --bypass\n";
     return 2;
 }
 
@@ -129,7 +131,7 @@ void printManual(juce::AudioProcessor& processor, const juce::String& format)
 // Plays "audio" (or silence, if empty) through the processor in blocks. Optionally pumps
 // the message loop, so an open editor can update (meters, displays).
 void process(juce::AudioProcessor& processor, const juce::AudioBuffer<float>& audio, int numSamples,
-             int blockSize, juce::AudioBuffer<float>* output, bool pumpMessages)
+             int blockSize, juce::AudioBuffer<float>* output, bool pumpMessages, bool bypassed = false)
 {
     const int numChannels = juce::jmax(processor.getTotalNumInputChannels(), processor.getTotalNumOutputChannels());
     juce::AudioBuffer<float> block(numChannels, blockSize);
@@ -143,7 +145,10 @@ void process(juce::AudioProcessor& processor, const juce::AudioBuffer<float>& au
             block.copyFrom(ch, 0, audio, juce::jmin(ch, audio.getNumChannels() - 1), pos % audio.getNumSamples(),
                            juce::jmin(n, audio.getNumSamples() - pos % audio.getNumSamples()));
         midi.clear();
-        processor.processBlock(block, midi);
+        if (bypassed)
+            processor.processBlockBypassed(block, midi);
+        else
+            processor.processBlock(block, midi);
         if (output != nullptr)
             for (int ch = 0; ch < output->getNumChannels(); ++ch)
                 output->copyFrom(ch, pos, block, juce::jmin(ch, numChannels - 1), 0, n);
@@ -207,6 +212,7 @@ int main(int argc, char* argv[])
     juce::String presetPath, audioPath;
     double seconds = 1.0;
     int blockSize = 512;
+    bool bypassed = false;
     juce::StringArray settings;
     juce::StringArray positional;
     for (int i = 0; i < args.size(); ++i)
@@ -218,6 +224,7 @@ int main(int argc, char* argv[])
         else if (a == "--audio" && hasValue)     audioPath = args[++i];
         else if (a == "--seconds" && hasValue)   seconds = args[++i].getDoubleValue();
         else if (a == "--blocksize" && hasValue) blockSize = juce::jmax(16, args[++i].getIntValue());
+        else if (a == "--bypass")                bypassed = true;
         else if (a.startsWith("--"))             { std::cout << "Unknown option " << a << "\n"; return usage(); }
         else                                     positional.add(a);
     }
@@ -253,11 +260,12 @@ int main(int argc, char* argv[])
     }
     processor->setRateAndBufferSizeDetails(sampleRate, blockSize);
     processor->prepareToPlay(sampleRate, blockSize);
+    std::cout << "reported latency: " << processor->getLatencySamples() << " samples\n";
 
     if (mode == "render")
     {
         juce::AudioBuffer<float> output(processor->getTotalNumOutputChannels(), audio.getNumSamples());
-        process(*processor, audio, audio.getNumSamples(), blockSize, &output, false);
+        process(*processor, audio, audio.getNumSamples(), blockSize, &output, false, bypassed);
         processor->releaseResources();
         if (!writeWav(fileArg(positional[2]), output, sampleRate))
         {

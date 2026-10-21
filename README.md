@@ -38,6 +38,13 @@ V1.2 (lessons from StereoWidener, 2026-09-30): the Save button turns red when th
 unmodified factory copies with a lower presetversion are updated, user-saved presets are never overwritten);
 new tools/LogFrequencyRange.h; jassert warning with JUCE 9 fixed.
 V1.3 (2026-10-08): the keyboard (WITH_MIDIKEYBOARD) labels MIDI note 60 as C4 (JUCE's default is C3); `g_octaveOfMiddleC` in PluginSettings.h.
+V1.4 (2026-10-21, lessons from VerySimpleSynth): the plugin reports its latency (the synchronous block,
+`g_desired_blocksize_ms`) to the host: `m_Latency` was summed up at every prepareToPlay and `setLatencySamples`
+was only called in the constructor, so the latency was always reported as 0. Bypassed, an effect now delays its
+input by the same latency (tools/BypassDelay.h), a synth is silent. The preset "Init" always holds the default
+values: it is written at every start (before only into an empty preset folder, so with factory presets there was
+no "Init" and the preset bar showed the first preset while the default values were active). A change saved under
+"Init" is replaced at the next start: save your own sounds under another name.
 
 ## Versioning of your plugin
 The version is set in CMakeLists.txt: `project(${TARGET_NAME} VERSION 0.0.1)`. It is shown in the GUI

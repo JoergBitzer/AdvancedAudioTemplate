@@ -119,6 +119,9 @@ void YourPluginNameAudioProcessor::prepareToPlay (double sampleRate, int samples
     juce::ignoreUnused (samplesPerBlock);
     m_fs = static_cast<float>(sampleRate);
     m_algo.prepareToPlay(sampleRate,samplesPerBlock,nrofchannels);
+    // the latency is known only now (the synchronous block size depends on the sample rate)
+    setLatencySamples(m_algo.getLatency());
+    m_bypassDelay.prepare(nrofchannels, m_algo.getLatency());
 }
 
 void YourPluginNameAudioProcessor::releaseResources()
@@ -185,6 +188,17 @@ void YourPluginNameAudioProcessor::processBlock (juce::AudioBuffer<float>& buffe
     midiMessages.clear(); // except you want to create new midi messages, but than say so 
     // by setting NEEDS_MIDI_OUTPUT in CMakeLists.txt
 #endif
+}
+
+void YourPluginNameAudioProcessor::processBlockBypassed (juce::AudioBuffer<float>& buffer,
+                                                         juce::MidiBuffer& midiMessages)
+{
+    juce::ignoreUnused (midiMessages);
+   #if JucePlugin_IsSynth
+    buffer.clear(); // a bypassed synth makes no sound
+   #else
+    m_bypassDelay.process(buffer); // the input, delayed like the processed signal
+   #endif
 }
 
 //==============================================================================
