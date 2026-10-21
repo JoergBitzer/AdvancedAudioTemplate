@@ -104,8 +104,19 @@ YourPluginName_Tester render in.wav out.wav --set ExampleID=1.5 --preset myprese
 ```
 Uses: listen to a setting without a DAW; check that a code change did not change the sound
 (render before and after, then compare the files -- identical files mean identical sound); feed
-the result to an analysis (e.g. Python). Note that the output may be delayed by the plugin's
-latency (the template's internal block processing delays by 2 ms).
+the result to an analysis (e.g. Python). Note that the output is delayed by the plugin's
+latency (the template's internal block processing delays by 2 ms); the Tester prints the
+latency the plugin reports to the host ("reported latency: 96 samples" at 48 kHz).
+
+**Latency and bypass:** a plugin must report its real latency, and when bypassed it must delay the
+signal by the same amount (the host compensates the latency also during bypass). Check both with an
+impulse (a wav file with a single 1 in silence):
+```console
+YourPluginName_Tester render impulse.wav out.wav            # delay of the impulse = reported latency
+YourPluginName_Tester render impulse.wav out.wav --bypass   # the same delay, unchanged level
+```
+(`--bypass` calls `processBlockBypassed` instead of `processBlock`.) If your algorithm adds latency
+(e.g. a look-ahead), add it to `m_Latency`, and both checks still have to agree.
 
 **Snapshot** of the plugin window as a PNG:
 ```console
@@ -118,7 +129,7 @@ signal. Uses: screenshots for the README and the manual; a quick look at the GUI
 window needs a window manager, otherwise JUCE ends with an X error "BadAtom").
 
 Options for both: `--preset <file.xml>` (a preset saved by the preset handler), `--set <id>=<value>`
-(repeatable, value in the parameter's own unit), `--blocksize <n>` (default 512).
+(repeatable, value in the parameter's own unit), `--blocksize <n>` (default 512). Render only: `--bypass`.
 
 Like in a DAW, the plugin uses your preset folder and settings. On Linux/macOS you can keep them
 untouched with a temporary home folder: `HOME=$(mktemp -d) YourPluginName_Tester ...`

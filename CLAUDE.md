@@ -6,7 +6,7 @@ A JUCE audio plugin (VST3, AU on macOS, Standalone) made from the AdvancedAudioT
   blocks via `SynchronBlockProcessor`) and the GUI (`YourPluginNameGUI`). Most work happens here.
 - `PluginProcessor.*`, `PluginEditor.*`: glue code (presets, state, window, preset bar); change rarely.
 - `PluginSettings.h`: block size, GUI size, preset-bar and keyboard layout.
-- `tools/`: template helpers -- `ParameterSpec.h`, `DayNightLookAndFeel.*`, `PresetHandler.*`,
+- `tools/`: template helpers -- `ParameterSpec.h`, `DayNightLookAndFeel.*`, `PresetHandler.*`, `BypassDelay.h`,
   `LogFrequencyRange.h`, `run_pluginval.*`, `tester/`.
 - `CMakeLists.txt`: version, plugin codes, switches `WITH_PRESETHANDLERGUI`, `WITH_DAYNIGHT` (needs the
   preset handler), `WITH_MIDIKEYBOARD`, source list.
@@ -90,6 +90,10 @@ The author works on the same machine. Everything that opens a window runs in a *
 - Keep the algorithm free of GUI code (no `juce_gui_*` includes), so it can be tested headless.
 - Factory presets: XML files embedded with `juce_add_binary_data` and `FACTORY_PRESETS`; add
   `presetversion="N"` to the root element and raise it when a preset changes (see README).
+- The preset "Init" is written at every start with the default values of all parameters (`PresetHandler::writeInitPreset`);
+  do not ship a factory preset called "Init".
+- The plugin reports the latency of the synchronous blocks (`setLatencySamples` in `prepareToPlay`); `processBlockBypassed`
+  delays an effect's input by the same amount (`tools/BypassDelay.h`). If the algorithm adds latency, add it to `m_Latency`.
 - Per-user files (presets, `user.settings`) live in `PresetHandler::getUserPresetsFolder()`; nothing
   there may end in `.xml` except presets.
 
