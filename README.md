@@ -45,6 +45,8 @@ input by the same latency (tools/BypassDelay.h), a synth is silent. The preset "
 values: it is written at every start (before only into an empty preset folder, so with factory presets there was
 no "Init" and the preset bar showed the first preset while the default values were active). A change saved under
 "Init" is replaced at the next start: save your own sounds under another name.
+CI (2026-10-22): pluginval 2.0.0-beta3 needs glibc 2.38, the Linux build runner (ubuntu-22.04) has 2.35: the Linux
+zip is now tested in its own job on ubuntu-24.04 (the build stays on 22.04 for older distributions).
 
 ## Versioning of your plugin
 The version is set in CMakeLists.txt: `project(${TARGET_NAME} VERSION 0.0.1)`. It is shown in the GUI
